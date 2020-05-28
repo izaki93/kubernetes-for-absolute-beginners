@@ -1,0 +1,255 @@
+1-Install ssh server on ububtu :
+    a-type:  > sudo su  to run any cmd as admin
+    b- apt-get update
+    c- apr-get install openssh-server
+    d- check installation status : > service ssh status
+
+---------------------------------------------------------
+2- Install Docker in Ubuntu 
+ > apt-get install docker.io
+
+
+-----------------------------K8s cmd----------------------------------
+1- get the nodes
+> kubectl get nodes
+
+2- create pod for nginx
+>kubectl  run nginx --image=nginx
+
+3- get pods
+> kubectl  get pods
+
+4-Describe pods
+> kubectl describe pods
+
+5- get pods with additional information
+> kubectl get pods -o wide
+
+6- crate deployment :
+> kubectl create deployment nginx --image=nginx
+
+///////////////////////////////////////////////////////////////////////////////////////////////////
+You can create pods from the command line using any of the below two ways:
+
+
+
+Create an NGINX Pod (using --generator)
+
+kubectl run --generator=run-pod/v1 nginx --image=nginx
+
+
+
+2. Create an NGINX Pod (using --restart=Never)
+
+kubectl run nginx --image=nginx --restart=Never
+
+
+
+If you run the kubectl run command without the --restart=Never OR the --generator=run-pod/v1, the command will create a deployment instead (as of version 1.16).
+
+
+
+Note that this way of creating a deployment is deprecated and should not be used.
+
+
+
+Instead, use kubectl create command to create a deployment
+
+kubectl create deployment nginx --image=nginx
+
+
+
+Kubernetes Concepts - https://kubernetes.io/docs/concepts/
+
+Pod Overview- https://kubernetes.io/docs/concepts/workloads/pods/pod-overview/
+
+///////////////////////////////////////////////////////////////////////////////////////////////////
+
+
+3- to create file in ububtu and open it for edit :
+
+> cat > pod-definition.yml
+
+after add the text perss ctrl+c 
+
+4 - ti check that the text is saved :
+> cat pod-definition.yml
+
+5- create new pod :
+> kubectl create -f pod-definition.yml
+
+///////////////////////////// ReplicaSet ///////////////////////////
+
+==>commands
+> kubectl create –f replicaset-definition.yml
+> kubectl get replicaset
+> kubectl delete replicaset myapp-replicaset
+> kubectl replace -f replicaset-definition.yml
+> kubectl scale –replicas=6 -f replicaset-definition.yml
+
+> kubectl scale -–replicas=6 replicaset myapp-replicaset
+                                TYPE        NAME
+
+//////////////////////////////////// Deployment ////////////////////////
+
+> kubectl create –f deployment-definition.yml Get > kubectl get deployments
+
+Create:
+   > kubectl create –f deployment-definition.yml
+   To create and record changes:
+   >kubectl create -f deployment-definition.yml --record
+Get:
+    > kubectl get deployments
+Update:
+    > kubectl apply –f deployment-definition.yml
+    OR
+   > kubectl set image deployment/myapp-deployment nginx=nginx:1.9.1
+Status:
+    > kubectl rollout status deployment/myapp-deployment
+    OR
+    > kubectl rollout history deployment/myapp-deployment
+Rollback:
+    > kubectl rollout undo deployment/myapp-deployment
+          
+///////////////////////////////////////////////////////////////////////////////////
+A Note on Editing Existing Pods
+In any of the practical quizzes if you are asked to edit an existing POD, please note the following:
+
+If you are given a pod definition file, edit that file and use it to create a new pod.
+
+If you are not given a pod definition file, you may extract the definition to a file using the below command:
+
+> kubectl get pod <pod-name> -o yaml > pod-definition.yaml
+
+Then edit the file to make the necessary changes, delete and re-create the pod.
+
+Use the > kubectl edit pod <pod-name> command to edit pod properties.
+
+
+////////////////////////////////////////////////////////////////////////////////////////////
+
+Certification Tip: Formatting Output with kubectl
+                                                                       
+
+The default output format for all kubectl commands is the human-readable plain-text format.
+
+The -o flag allows us to output the details in several different formats.
+
+
+
+kubectl [command] [TYPE] [NAME] -o <output_format>
+
+Here are some of the commonly used formats:
+
+
+
+-o jsonOutput a JSON formatted API object.
+
+-o namePrint only the resource name and nothing else.
+
+-o wideOutput in the plain-text format with any additional information.
+
+-o yamlOutput a YAML formatted API object.
+
+Here are some useful examples:
+
+Output with JSON format:
+
+master $ kubectl create namespace test-123 --dry-run -o json
+{
+    "kind": "Namespace",
+    "apiVersion": "v1",
+    "metadata": {
+        "name": "test-123",
+        "creationTimestamp": null
+    },
+    "spec": {},
+    "status": {}
+}
+master $
+
+
+Output with YAML format:
+
+master $ kubectl create namespace test-123 --dry-run -o yaml
+apiVersion: v1
+kind: Namespace
+metadata:
+  creationTimestamp: null
+  name: test-123
+spec: {}
+status: {}
+
+
+Output with wide (additional details):
+
+Probably the most common format used to print additional details about the object:
+
+master $ kubectl get pods -o wide
+NAME      READY   STATUS    RESTARTS   AGE     IP          NODE     NOMINATED NODE   READINESS GATES
+busybox   1/1     Running   0          3m39s   10.36.0.2   node01   <none>           <none>
+ningx     1/1     Running   0          7m32s   10.44.0.1   node03   <none>           <none>
+redis     1/1     Running   0          3m59s   10.36.0.1   node01   <none>           <none>
+master $
+
+
+For more details, refer:
+
+https://kubernetes.io/docs/reference/kubectl/overview/
+
+https://kubernetes.io/docs/reference/kubectl/cheatsheet/
+
+/////////////////////////////////////////////////////////////////////////////////////////////////
+A quick note on editing PODs and Deployments
+
+1- extract the pod definition in YAML format to a file using the command
+
+kubectl get pod webapp -o yaml > my-new-pod.yaml
+
+Then make the changes to the exported file using an editor (vi editor). Save the changes
+
+vi my-new-pod.yaml
+
+Then delete the existing pod
+
+kubectl delete pod webapp
+
+Then create a new pod with the edited file
+
+kubectl create -f my-new-pod.yaml
+
+
+
+Edit Deployments
+With Deployments you can easily edit any field/property of the POD template. Since the pod template is a child of the deployment specification,  with every change the deployment will automatically delete and create a new pod with the new changes. So if you are asked to edit a property of a POD part of a deployment you may do that simply by running the command
+
+kubectl edit deployment my-deployment
+
+
+/////////////////////////////////////////// Configmap //////////////////////////////////////////////////////
+
+
+create Configmap:
+> kubectl create configmap app-config --from-literal=APP_COLOR=blue --from-literal=APP_MOD=prod
+
+Get:
+> kubectl get configmaps
+
+Describe:
+> kubectl describe configmaps
+
+
+/////////////////////////////////////////// Secret //////////////////////////////////////////////////////
+
+ create: 
+ (imparative way)
+> kubectl create secret generic <secret-name> --from-literal=<key>=<value>
+> kubectl create secret generic db-secret --from-literal=DB_Host=sql01  --from-literal=DB_User=root  --from-literal=DB_Password=password123
+or (Declarative way)
+> kubectl create –f secret-data.yaml
+
+Get:
+> kubectl get secrets
+> kubectl get secret app-secret –o yaml
+Describe:
+> kubectl describe secrets
